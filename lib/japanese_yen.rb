@@ -98,7 +98,7 @@ class JapaneseYen < Numeric
   def coerce(other)
     if other.kind_of?(JapaneseYen)
       [other, self]
-    elsif other.is_a?(Numeric)
+    elsif other.kind_of?(Numeric)
       [self.class.new(other), self]
     else
       super.map { |n| self.class.new(n) }
