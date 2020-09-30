@@ -6,7 +6,7 @@ puts """
 # initializing
 # ===
 #   new or [],
-#   vectorize generates Vector[JapaneseYen...]
+#   generate_vector generates Vector[JapaneseYen...]
 #
 """
 begin
@@ -21,7 +21,7 @@ begin
   # => ¥345,345
 
   # generate Vector
-  puts JapaneseYen.vectorize(10_000, 20_000, 30_000)
+  puts JapaneseYen.generate_vector(10_000, 20_000, 30_000)
   # => Vector[¥10,000, ¥20,000, ¥30,000]
 
   puts JapaneseYen[10.0]
@@ -155,18 +155,18 @@ end
 
 puts """
 #
-# Vector's merits
+# Vector (or Matrix)
 #
 """
 begin
-  yen_vector = JapaneseYen.vectorize( 324, 1234, 456, 340, 120, 345 )
+  yen_vector = JapaneseYen.generate_vector( 324, 1234, 456, 340, 120, 345 )
 
   # Bulk-calculating price including tax
   puts (yen_vector * 1.1).map(&:round)
   # => Vector[¥356, ¥1,357, ¥502, ¥374, ¥132, ¥380]
 
-  yen_vector2 = JapaneseYen.vectorize( 128, 256, 512, 1024, 2048, 5096 )
-  yen_vector3 = JapaneseYen.vectorize(-100, 200, -10,  210,   30,  416 )
+  yen_vector2 = JapaneseYen[128, 256, 512, 1024, 2048, 5096]
+  yen_vector3 = JapaneseYen[-100, 200, -10,  210,   30,  416]
 
   # Bulk-add each element
   puts yen_vector + yen_vector2 + yen_vector3
@@ -175,5 +175,64 @@ begin
   # extra: cumsumlative
   puts Vector.elements(yen_vector.size.times.map { |i| yen_vector[0..i].sum })
   # => Vector[¥324, ¥1,558, ¥2,014, ¥2,354, ¥2,474, ¥2,819]
+
+  yen_matrix = JapaneseYen.generate_matrix(
+    [ 100,  200,  300,  400,  500],
+    [ 600,  700,  800,  900, 1000],
+    [1100, 1200, 1300, 1400, 1500],
+    [1600, 1700, 1800, 1900, 2000],
+    [2100, 2200, 2300, 2400, 2500],
+  )
+  puts yen_matrix
+  # => Matrix[
+  #   [¥100, ¥200, ¥300, ¥400, ¥500],
+  #   [¥600, ¥700, ¥800, ¥900, ¥1,000],
+  #   [¥1,100, ¥1,200, ¥1,300, ¥1,400, ¥1,500],
+  #   [¥1,600, ¥1,700, ¥1,800, ¥1,900, ¥2,000],
+  #   [¥2,100, ¥2,200, ¥2,300, ¥2,400, ¥2,500]
+  # ]
+
+  # Bulk-calculating price including tax
+  puts (yen_matrix * 1.1).map(&:round)
+  # => Matrix[
+  #   [¥110, ¥220, ¥330, ¥440, ¥550],
+  #   [¥660, ¥770, ¥880, ¥990, ¥1,100],
+  #   [¥1,210, ¥1,320, ¥1,430, ¥1,540, ¥1,650],
+  #   [¥1,760, ¥1,870, ¥1,980, ¥2,090, ¥2,200],
+  #   [¥2,310, ¥2,420, ¥2,530, ¥2,640, ¥2,750]
+  # ]
+
+  yen_matrix2 = JapaneseYen[
+    [ -500,  100, 1200,  568, 3498 ],
+    [ 1001, 2012, 1349, 2345, 6734 ],
+    [  300, -987, 1872,  321,   45 ],
+    [  213, 3492,  234,  212, 1032 ],
+    [ 8234,  123,  100, 1298,  345 ]
+  ]
+
+  # Bulk-add each element
+  puts yen_matrix + yen_matrix2
+  # => Matrix[
+  #   [¥-400, ¥300, ¥1,500, ¥968, ¥3,998],
+  #   [¥1,601, ¥2,712, ¥2,149, ¥3,245, ¥7,734],
+  #   [¥1,400, ¥213, ¥3,172, ¥1,721, ¥1,545],
+  #   [¥1,813, ¥5,192, ¥2,034, ¥2,112, ¥3,032],
+  #   [¥10,334, ¥2,323, ¥2,400, ¥3,698, ¥2,845]
+  # ]
+
+  # 5x5 matrix * vector (as 1x5 matrix)
+  puts yen_matrix * JapaneseYen[1.1, 1.2, 1.3, 1.4, 1.5]
+  # => Vector[¥2,050.0, ¥5,300.0, ¥8,550.0, ¥11,800.0, ¥15,050.0]
+
+  # Aggregate each row
+  # 5x5 matrix * vector (as 1x5 matrix) (All multipliers should be 1)
+  puts yen_matrix * Vector.elements(Array.new(yen_matrix.row_size, 1))
+  # => Vector[¥1,500, ¥4,000, ¥6,500, ¥9,000, ¥11,500]
+
+  # Aggregate each column
+  # 5x5 matrix * vector (as 1x5 matrix) (All multipliers should be 1)
+  puts yen_matrix.transpose * Vector.elements(Array.new(yen_matrix.row_size, 1))
+  # => Vector[¥5,500, ¥6,000, ¥6,500, ¥7,000, ¥7,500]
+  puts Vector.elements(yen_matrix.column_vectors.map(&:sum))
 end
 

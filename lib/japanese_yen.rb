@@ -20,53 +20,69 @@ class JapaneseYen < Numeric
 
   def initialize(value)
     value.kind_of?(Numeric) or
-      raise ArgumentError, "Cannot create JapaneseYen object from #{value.class}, because it is not a kind of Numeric."
+      raise ArgumentError, "Cannot create #{self.class} object from #{value.class}, because it is not a kind of Numeric."
 
     @value = value
   end
 
-  def self.[](value)
-    self.new(value)
+  # JapaneseYen[100, 200, 300]
+  # => Vector[JapaneseYen[¥100], JapaneseYen[¥200], JapaneseYen[¥300]]
+  #
+  # JapaneseYen[[100, 200], [300, 400]]
+  # => Matrix[[JapaneseYen[¥100], JapaneseYen[¥200]], [JapaneseYen[¥300], JapaneseYen[¥400]]]
+  #
+  def self.[](*values)
+    if values.first.kind_of?(Enumerable)
+      generate_matrix(*values)
+    else
+      values.size == 1 ?
+        self.new(values.first) : generate_vector(*values)
+    end
   end
 
-  def self.vectorize(*values)
+  def self.generate_vector(*values)
     Vector.elements(values.map { |value| self.new(value) })
+  end
+
+  def self.generate_matrix(*value_arrays)
+    rows = value_arrays.map { |values| generate_vector(*values) }
+    Matrix.rows(rows)
   end
 
   def +(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value + right.value)
+    self.class.new(left.value + right.value)
   end
 
   def -(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value - right.value)
+    self.class.new(left.value - right.value)
   end
 
   def *(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value * right.value)
+    self.class.new(left.value * right.value)
   end
 
   def /(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value / right.value)
+    self.class.new(left.value / right.value)
   end
 
   def %(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value % right.value)
+    self.class.new(left.value % right.value)
   end
 
   def divmod(other)
     right, left = coerce(other)
     integer, fraction = left.value.divmod(right.value)
-    Vector[JapaneseYen.new(integer), JapaneseYen.new(fraction)]
+    Vector[self.class.new(integer), self.class.new(fraction)]
   end
 
   def **(other)
     right, left = coerce(other)
-    JapaneseYen.new(left.value ** right.value)
+    self.class.new(left.value ** right.value)
   end
 
   def ==(other)
@@ -80,12 +96,12 @@ class JapaneseYen < Numeric
   end
 
   def coerce(other)
-    if other.is_a?(JapaneseYen)
+    if other.kind_of?(JapaneseYen)
       [other, self]
     elsif other.is_a?(Numeric)
-      [JapaneseYen.new(other), self]
+      [self.class.new(other), self]
     else
-      super.map { |n| JapaneseYen.new(n) }
+      super.map { |n| self.class.new(n) }
     end
   end
 
@@ -114,7 +130,7 @@ class JapaneseYen < Numeric
   end
 
   def decimalize
-    JapaneseYen.new(to_f)
+    self.class.new(to_f)
   end
 
   def rationalize!
@@ -122,7 +138,7 @@ class JapaneseYen < Numeric
   end
 
   def rationalize
-    JapaneseYen.new(to_r)
+    self.class.new(to_r)
   end
 
   def to_s
@@ -130,10 +146,10 @@ class JapaneseYen < Numeric
   end
 
   def inspect
-    "JapaneseYen[#{to_s}]"
+    "#{self.class}[#{to_s}]"
   end
 
   def dup
-    JapaneseYen.new(@value)
+    self.class.new(@value)
   end
 end
