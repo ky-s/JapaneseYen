@@ -1,3 +1,5 @@
+require "japanese_yen/version"
+
 # Japanese Yen class
 #
 # yen = JapaneseYen.new(10_000)
@@ -95,6 +97,7 @@ class JapaneseYen < Numeric
     left.value <=> right.value
   end
 
+  # see https://docs.ruby-lang.org/ja/latest/method/Numeric/i/coerce.html
   def coerce(other)
     if other.kind_of?(JapaneseYen)
       [other, self]
@@ -142,7 +145,9 @@ class JapaneseYen < Numeric
   end
 
   def to_s
-    '¥' + @value.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\1,')
+    until_ = @value.kind_of?(Float) ? /\./ : /(\/|$)/
+
+    '¥' + @value.to_s.gsub(/(\d)(?=(\d{3})+#{until_})/, '\1,')
   end
 
   def inspect
