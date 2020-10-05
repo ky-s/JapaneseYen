@@ -15,6 +15,13 @@ class JapaneseYenTest < Minitest::Test
 
     assert_equal 10.0, JapaneseYen[10.0]
     assert_equal Rational(234, 3), JapaneseYen[Rational(234, 3)]
+
+    # JapaneseYen が入っても、 JapaneseYen の value にそのまま設定されません。
+    # 与えられた JapaneseYen の value を value に代入しますので、
+    # 実質的に与えた JapaneseYen と同じものが返却されます。
+    yen = JapaneseYen[10]
+    assert_equal yen, JapaneseYen.new(yen)
+    assert JapaneseYen.new(yen).value.kind_of?(Integer)
   end
 
   def test_initializing_vector

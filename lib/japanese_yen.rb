@@ -24,7 +24,7 @@ class JapaneseYen < Numeric
     value.kind_of?(Numeric) or
       raise ArgumentError, "Cannot create #{self.class} object from #{value.class}, because it is not a kind of Numeric."
 
-    @value = value
+    @value = value.kind_of?(JapaneseYen) ? value.value : value
   end
 
   # JapaneseYen[100, 200, 300]
